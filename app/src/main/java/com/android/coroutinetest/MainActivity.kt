@@ -3,9 +3,8 @@ package com.android.coroutinetest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import android.widget.TextView
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,21 +13,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        GlobalScope.launch {
+     
+        val job = GlobalScope.launch(Dispatchers.Default) {
+            Log.d(TAG, "Starting log running calculation: ")
+            for (i in 40..45){
+                if (isActive){
+                    Log.d(TAG, "Result for i $i : ${fib(i)}")
+                }
 
-            doNetworkCall()
-            doNetworkCall2()
+            }
+            Log.d(TAG, "Ending long running calculation ")
+
 
         }
-        Log.d(TAG, "Thread: ${Thread.currentThread().name}")
+        runBlocking {
+            delay(2000L)
+            job.cancel()
+            Log.d(TAG, "Cancelled job!! ")
+        }
+
     }
 
-    suspend fun doNetworkCall(){
-        delay(30000L)
-        Log.d(TAG, "doNetworkCall: ")
-    }
-    suspend fun doNetworkCall2(){
-        delay(1000L)
-        Log.d(TAG, "doNetworkCall2: ")
+
+
+    fun fib(n: Int):Long{
+        return if (n==0) 0
+        else if (n==1) 1
+        else fib(n-1)+fib(n-2)
+
+
     }
 }
